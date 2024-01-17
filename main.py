@@ -73,21 +73,25 @@ def text_to_asl(text, index=0):
         panel.config(image=img)
         panel.image = img
 
-        # Show each image for 1000 milliseconds (1 second)
         root.after(400, lambda: text_to_asl(text, index + 1))
     else:
         # After displaying all images, reset the label
         panel.config(image="")
         panel.image = None
+        loading_label.config(text="")  # Reset loading text
 
 def start_stop_button():
     global listening
-    listening = not listening
     if listening:
-        start_stop_btn.config(text="Stop Listening")
+        listening = False
+        start_stop_btn.config(text="Start Listening")
+        loading_label.config(text="Loading...")  # Show loading text only after stopping
         threading.Thread(target=listen_and_process).start()
     else:
-        start_stop_btn.config(text="Start Listening")
+        listening = True
+        start_stop_btn.config(text="Stop Listening")
+        loading_label.config(text="")  # Clear loading text
+        threading.Thread(target=listen_and_process).start()
 
 def listen_and_process():
     global end_program
@@ -96,16 +100,20 @@ def listen_and_process():
         text = convert_voice_to_text(audio)
         end_program = process_voice_command(text)
         text_to_asl(text)
+        loading_label.config(text="")  # Clear loading text when processing is done
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Speech Recognition")
+    root.title("Sign Speak")
 
     listening = False
     end_program = False
 
     panel = tk.Label(root)
     panel.pack(side="left")
+
+    loading_label = tk.Label(root, text="")
+    loading_label.pack()
 
     start_stop_btn = tk.Button(root, text="Start Listening", command=start_stop_button)
     start_stop_btn.pack()
