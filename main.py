@@ -33,7 +33,7 @@ def process_voice_command(text):
         return True
     return False
 
-def text_to_asl(text):
+def text_to_asl(text, index=0):
     asl_mapping = {
         'a': 'a.jpg',
         'b': 'b.jpg',
@@ -63,15 +63,22 @@ def text_to_asl(text):
         'z': 'z.jpg',
     }
 
-    for char in text.lower():
+    if index < len(text):
+        char = text[index].lower()
         img_path = os.path.join('images', asl_mapping.get(char, 'unknown.png'))
         img = Image.open(img_path)
         img = img.resize((100, 100), Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img)
 
-        panel = tk.Label(root, image=img)
+        panel.config(image=img)
         panel.image = img
-        panel.pack(side="left")
+
+        # Show each image for 1000 milliseconds (1 second)
+        root.after(400, lambda: text_to_asl(text, index + 1))
+    else:
+        # After displaying all images, reset the label
+        panel.config(image="")
+        panel.image = None
 
 def start_stop_button():
     global listening
@@ -84,7 +91,7 @@ def start_stop_button():
 
 def listen_and_process():
     global end_program
-    while listening and not end_program:
+    if listening and not end_program:
         audio = capture_voice_input()
         text = convert_voice_to_text(audio)
         end_program = process_voice_command(text)
@@ -96,6 +103,9 @@ if __name__ == "__main__":
 
     listening = False
     end_program = False
+
+    panel = tk.Label(root)
+    panel.pack(side="left")
 
     start_stop_btn = tk.Button(root, text="Start Listening", command=start_stop_button)
     start_stop_btn.pack()
