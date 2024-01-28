@@ -61,6 +61,16 @@ def text_to_asl(text, index=0):
         'x': 'x.jpg',
         'y': 'y.jpg',
         'z': 'z.jpg',
+        '0': '0.jpg',
+        '1': '1.jpg',
+        '2': '2.jpg',
+        '3': '3.jpg',
+        '4': '4.jpg',
+        '5': '5.jpg',
+        '6': '6.jpg',
+        '7': '7.jpg',
+        '8': '8.jpg',
+        '9': '9.jpg',     
     }
 
     if index < len(text):
