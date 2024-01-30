@@ -136,14 +136,14 @@ if __name__ == "__main__":
     mic_label = tk.Label(root, image=mic_inactive_img)
     mic_label.pack(pady=4)
 
-    voice_rec_label = tk.Label(root, text="", fg="black",font=("Helvetica",12))
+    voice_rec_label = tk.Label(root, text="", fg="black",font=("Helvetica",14))
     voice_rec_label.pack()
 
     panel = tk.Label(root)
     panel.pack(side="top", pady=10)
 
 
-    loading_label = tk.Label(root, text="", fg="black")
+    loading_label = tk.Label(root, text="", fg="black",font=("Helvetica",14))
     loading_label.pack()
 
     # Add instruction panel 
