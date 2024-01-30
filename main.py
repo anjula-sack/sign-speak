@@ -1,10 +1,13 @@
 import os
 import tkinter as tk
+from tkinter import ttk
 import speech_recognition as sr
 from PIL import Image, ImageTk
 import threading
 
 recognizer = sr.Recognizer()
+
+
 
 # Speech recognition
 
@@ -67,7 +70,7 @@ def text_to_asl(text, index=0):
         char = text[index].lower()
         img_path = os.path.join('images', asl_mapping.get(char, 'unknown.png'))
         img = Image.open(img_path)
-        img = img.resize((100, 100), Image.ANTIALIAS)
+        img = img.resize((400, 400), Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img)
 
         panel.config(image=img)
@@ -79,43 +82,74 @@ def text_to_asl(text, index=0):
         panel.config(image="")
         panel.image = None
         loading_label.config(text="")  # Reset loading text
+        voice_rec_label.config(text="")
+
 
 def start_stop_button():
     global listening
     if listening:
         listening = False
+        
+        style.configure("Rounded.TButton", foreground="green")
         start_stop_btn.config(text="Start Listening")
-        loading_label.config(text="Loading...")  # Show loading text only after stopping
+        loading_label.config(text="Loading...", fg="black")  # Show loading text only after stopping
+        mic_label.config(image=mic_inactive_img)
         threading.Thread(target=listen_and_process).start()
     else:
         listening = True
+        
+        style.configure("Rounded.TButton", foreground="red")
         start_stop_btn.config(text="Stop Listening")
-        loading_label.config(text="")  # Clear loading text
+        loading_label.config(text="", fg="black")  # Clear loading text
+        mic_label.config(image=mic_active_img)
         threading.Thread(target=listen_and_process).start()
+
 
 def listen_and_process():
     global end_program
     if listening and not end_program:
         audio = capture_voice_input()
         text = convert_voice_to_text(audio)
+        
         end_program = process_voice_command(text)
         text_to_asl(text)
-        loading_label.config(text="")  # Clear loading text when processing is done
+        loading_label.config(text="", fg="black")  # Clear loading text when processing is done
+        voice_rec_label.config(text=text)
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Sign Speak")
 
+    root.geometry("1920x1080")  # Set a fixed window size
+
     listening = False
     end_program = False
 
-    panel = tk.Label(root)
-    panel.pack(side="left")
+    # Use ttk.Style to round the edges of the button
+    style = ttk.Style()
+    style.configure("Rounded.TButton",  highlightthickness="0", relief="flat", foreground="green", padding=(10, 20), font=("Helvetica", 16))
 
-    loading_label = tk.Label(root, text="")
+    start_stop_btn = ttk.Button(root, text="Start Listening", command=start_stop_button, style="Rounded.TButton")
+    start_stop_btn.pack(pady=10)
+    mic_active_img = ImageTk.PhotoImage(Image.open("images/active_mic.png").resize((40, 40)))
+    mic_inactive_img = ImageTk.PhotoImage(Image.open("images/inactive_mic.png").resize((40, 40)))
+    mic_label = tk.Label(root, image=mic_inactive_img)
+    mic_label.pack(pady=4)
+
+    voice_rec_label = tk.Label(root, text="", fg="black",font=("Helvetica",12))
+    voice_rec_label.pack()
+
+    panel = tk.Label(root)
+    panel.pack(side="top", pady=10)
+
+
+    loading_label = tk.Label(root, text="", fg="black")
     loading_label.pack()
 
-    start_stop_btn = tk.Button(root, text="Start Listening", command=start_stop_button)
-    start_stop_btn.pack()
+    # Add instruction panel 
+    instruction_panel = tk.Label(root, text="Instructions: Speak into the microphone to convert your speech to ASL images.\n"
+                                        "Click 'Start Listening' to begin, and 'Stop Listening' to stop.", 
+                            fg="#333", font=("Helvetica", 16))  
+    instruction_panel.pack(side="bottom", pady=10)
 
     root.mainloop()
