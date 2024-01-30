@@ -17,12 +17,17 @@ def capture_voice_input():
         audio = recognizer.listen(source)
     return audio
 
+def hide_error_label():
+    error_label.config(text="")  # Clear the error label
+
 def convert_voice_to_text(audio):
     try:
         text = recognizer.recognize_google(audio)
         print("You said: " + text)
         return text
     except sr.UnknownValueError:
+        error_label.config(text="Sorry, I didn't understand that.")
+        root.after(2000, hide_error_label)
         print("Sorry, I didn't understand that.")
         return ""
     except sr.RequestError as e:
@@ -35,6 +40,7 @@ def process_voice_command(text):
         print("Closing application....")
         return True
     return False
+
 
 def text_to_asl(text, index=0):
     asl_mapping = {
@@ -155,6 +161,9 @@ if __name__ == "__main__":
 
     loading_label = tk.Label(root, text="", fg="black",font=("Helvetica",14))
     loading_label.pack()
+
+    error_label = tk.Label(root, text="", fg="black",font=("Helvetica",14))
+    error_label.pack()
 
     # Add instruction panel 
     instruction_panel = tk.Label(root, text="Instructions: Speak into the microphone to convert your speech to ASL images.\n"
